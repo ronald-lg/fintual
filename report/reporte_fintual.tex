@@ -1,0 +1,178 @@
+\documentclass[11pt, a4paper]{article}
+
+% --- Paquetes esenciales ---
+\usepackage[utf8]{inputenc}
+\usepackage[spanish, es-tabla]{babel}
+\usepackage[top=3cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{fontspec}
+\setmainfont{Poppins} % Llama a la tipografia Poppins nativa de Windows
+
+% --- Paleta Corporativa Fintual ---
+\definecolor{FintualLightBlue}{HTML}{9FCDFF}
+\definecolor{FintualBlue}{HTML}{005AE6}
+\definecolor{FintualDarkBlue}{HTML}{003295}
+\definecolor{FintualDark}{HTML}{22262F}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=FintualBlue,
+    urlcolor=FintualBlue
+}
+
+% --- Configuracion de Header y Footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{35pt}
+\fancyhead[L]{\includegraphics[width=3cm]{logo.jpg}}
+\fancyhead[R]{\textcolor{FintualDark}{\small Módulo de Gestión de Portafolios}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.8pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{FintualLightBlue}\leaders\hrule height \headrulewidth\hfill}}
+
+% Estilo de titulos
+\titleformat{\section}{\Large\bfseries\color{FintualDarkBlue}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{FintualBlue}}{\thesubsection}{1em}{}
+
+\begin{document}
+
+% --- Metadatos ---
+\noindent
+\textbf{Módulo de Gestión de Portafolios} \\
+\textbf{Autor:} Ronald Leblebici Garo \\
+\textbf{Fecha:} \today \\
+\vspace{0.5cm}
+
+\section{Resumen Ejecutivo}
+
+\textbf{Objetivo:} Este reporte documenta el diseño y la implementación de un módulo de gestión de portafolio que podría constituir parte de una aplicación de inversión y trading personal en la vida real. Según las indicaciones, se creó una clase ``Portfolio'' que recibe los datos de precios diarios de los activos que se pretenden mantener en los portafolios seleccionados. Además, se diseñó un método para calibrar las diferentes carteras, estableciendo qué activo comprar o vender cada mes y en qué medida. Este documento sintetiza el proceso, implementación, razonamiento y resultados del trabajo realizado. \\
+
+\textbf{Datos:} Se extrajeron datos de activos financieros desde la \href{https://fintual.cl/api-docs/index.html}{API de Fintual} y del S\&P500 disponibles en Yahoo Finance, con el objetivo de acotar el universo a valores que realmente se puedan transar en una app como la de Fintual. En lo temporal, distinguimos dos períodos: el de ``observación'' (mayo/23 - mayo/25)y el de ``prueba'' (mayo/25 - mayo/26). \\
+
+\textbf{Metodología:} Los portafolios fueron diseñados usando CAPM, aunque se introdujo un tope máximo de 15\% de participación de cada activo en un mismo portafolio y objetivos de $\beta$ de mercado. En el período de prueba se hicieron los rebalanceos correspondientes a cada portafolio al final de cada mes. Por simplicidad, nuestra regla de balanceo periódico no establece umbrales a partir de los cuales haya que comprar o vender. Simplemente se calculan las brechas entre la asignación porcentual vigente y objetivo para cada activo en cada portafolio. Los que están sobreponderados son vendidos para comprar más de los subponderados en la medida de que el cálculo actualizado lo requiera para mantener el balance establecido vía CAPM. \\
+
+\textbf{Resultados:} Se obtuvo portafolios eficientes, en los que se puede invertir en el mundo real y respaldadas por backtesting en el sentido de meximizar la relación entre retorno y riesgo. Los retornos anualizados fluctúan entre un 19,5 \% y un 88,8 \%, los drawdowns máximos entre un -8,3 \% y un -15,9 \% y los ratios de Sharpe entre un 2,17 y un 3,28. Esto muestra que estamos ante portafolios bien definidos, pero con perfiles de riesgos muy distintos. Todas compensan el riesgo que toman, siendo la diferencia el retorno extra que se obtiene a costa de más volatilidad y caídas.  Esto último se puede concluir a partir de los ratios de Sharpe relativamente altos. El portafolio agresivo es el más eficiente en compensar riesgo a través del retorno, aunque es el que tolera el mayor drawdown. \\
+
+Simulando la situación de alguien que invierte 10.000 USD durante el período de prueba, en un año este habría obtenido 11{.}938{,}8 en caso de escoger el portafolio conservador, 13{.}051{,}3 en el caso moderado y 18{.}834{,}6 USD en el caso agresivo.
+
+\section{Desempeño y Validación Teórica}
+
+\subsection{CAPM y FPP}
+
+Las figuras \ref{fig:grafico-capm-frontera} y \ref{fig:fpp} muestran el resultado de graficar elementos del modelo de valoración de activos de capital (CAPM) y la frontera de posibilidades de portafolio (FPP) respectivamente. Mientras el primer gráfico nos muestra que los portafolios diseñados se encuentran sobre la capital market line (siendo eficiente en términos de riesgo y retorno), el segundo nos muestra que el modelo de asignación fue exitoso. En este último se ve claramente que el portafolio moderado se ajusta a la frontera eficiente. Por su parte, el portafolio asume un rol maximizador ubicándose en la parte superior derecha y el conservador parece estar en un nivel óptimo ``a la defensiva''.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../output/grafico-capm-frontera.png}
+    \caption{Frontera de Posibilidades de Portafolio (FPP) y perfiles simulados.}
+    \label{fig:grafico-capm-frontera}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../output/grafico-fpp.png}
+    \caption{Frontera de Posibilidades de Portafolio (FPP) y perfiles simulados.}
+    \label{fig:fpp}
+\end{figure}
+
+\subsection{Métricas y Drawdown}
+
+Como se mencionó anteriormente, el portafolio agresivo muestra un retorno mucho mayor al del conservador ($ 88.82 \% / 19.47 \% = 4.56 $ veces), pero esto habría significado para los inversionistas soportar un drawdown de casi un 16\% en periodos de contracción (como ocurrió en abril de 2026). 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{../output/grafico-metricas-comparativas.png}
+    \caption{Métricas comparativas (Sharpe, Retorno Anualizado y Max Drawdown).}
+    \label{fig:metricas}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../output/grafico-drawdown.png}
+    \caption{Caídas máximas desde el pico (\textit{Drawdown}) por perfil.}
+    \label{fig:drawdown}
+\end{figure}
+
+La evolución del valor neto de los activos (NAV) evidencia que la construcción teórica se sostiene en la práctica: el perfil moderado sigue estrechamente al activo representativo del mercado (SPY), y los extremos cumplen sus respectivas funciones.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../output/grafico-backtest-nav.png}
+    \caption{Evolución del NAV normalizado de los portafolios frente al mercado.}
+    \label{fig:backtest_nav}
+\end{figure}
+
+
+\section{Algoritmo de Rebalanceo (Propuesta Técnica)}
+
+El desafío propuesto consiste en implementar un método en la clase \texttt{Portfolio} para establecer qué activos comprar y vender para llevar la cartera real hacia la asignación teórica.
+
+\subsection{Lógica de Ejecución (Implementación Actual)}
+En este ejercicio se utiliza un rebalanceo determinista forzoso: 
+\begin{enumerate}
+    \item Se calcula la valoración vigente de cada activo poseído en cada portafolio.
+    \item Se calcula el NAV total del fondo.
+    \item Se contrasta el peso real de cada activo contra el porcentaje objetivo.
+    \item Se calculan las ventas de activos excedentes y las compras de faltantes.
+\end{enumerate}
+
+\subsection{Consideración de costos operativos}
+
+Es importante tener en consideración una limitación de este ejercicio. Rebalancear constantemente el 100\% de las carteras incrementa los costos operativos. Una forma de resolver este asunto es añadir un grado de tolerancia. Por ejemplo, comprar o vender solo si el el peso de un activo se desvía más de un 3\% en magnitud de su objetivo (ya sea por sobre o subponderación).
+
+\newpage
+
+\section{Anexo: Detalles de Optimización y Composición}
+
+Este anexo recopila el detalle exhaustivo del proceso de optimización, el resumen cuantitativo del backtest por portafolio, y el \textit{allocation} resultante que es consumido por la clase de rebalanceo de órdenes.
+
+\subsection{Resumen Global del Backtest}
+\input{../output/tabla-backtest-resumen.tex}
+
+\subsection{Perfil Agresivo}
+El portafolio agresivo destina el límite del 15\% permitido por activo a concentrarse agresivamente en instrumentos de semiconductores y tecnología de punta (TSLA, NVDA, AMD).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../output/grafico-pesos-aggressive.png}
+    \caption{Pesos de los top 30 activos en el portafolio Agresivo.}
+    \label{fig:pesos_agresivo}
+\end{figure}
+
+\input{../output/tabla-backtest-aggressive.tex}
+\vspace{0.5cm}
+\input{../output/tabla-portafolio-aggressive.tex}
+
+\subsection{Perfil Moderado}
+Funciona como una aproximación indexada general, priorizando el tope de su matriz de asignación a ETFs como ESGU, VOO e IVV.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../output/grafico-pesos-moderate.png}
+    \caption{Pesos de los top 30 activos en el portafolio Moderado.}
+    \label{fig:pesos_moderado}
+\end{figure}
+
+\input{../output/tabla-backtest-moderate.tex}
+\vspace{0.5cm}
+\input{../output/tabla-portafolio-moderate.tex}
+
+\subsection{Perfil Conservador}
+Refugiado en bonos y renta fija corporativa (HYG, BND, JNK).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../output/grafico-pesos-conservative.png}
+    \caption{Pesos de los top 30 activos en el portafolio Conservador.}
+    \label{fig:pesos_conservador}
+\end{figure}
+
+\input{../output/tabla-backtest-conservative.tex}
+\vspace{0.5cm}
+\input{../output/tabla-portafolio-conservative.tex}
+
+\end{document}

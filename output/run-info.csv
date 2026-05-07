@@ -1,0 +1,2 @@
+trainstart,trainend,teststart,testend,marketproxy,rfannual,topn,rebalfreq,drifttolerance,transactioncostbps
+2023-05-09,2025-05-02,2025-05-05,2026-05-05,SPY,0.04,30,M,0.03,10
